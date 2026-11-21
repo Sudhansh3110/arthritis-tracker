@@ -8,7 +8,7 @@
    ========================================================================== */
 window.AT = window.AT || {};
 AT.CONFIG = {
-  supabaseUrl: "",      // e.g. "https://abcdefghijkl.supabase.co"
-  supabaseAnonKey: "",  // the long "anon public" key
+  supabaseUrl: "https://npygajbcgaaenlsjtkyp.supabase.co",      // e.g. "https://abcdefghijkl.supabase.co"
+  supabaseAnonKey: "sb_publishable_cvhKr_Y3-TFuhSPq3jdbRg_GpwkZDha",  // the long "anon public" key
   table: "tracker_backups"
 };
