@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Arthritis tracker</title>
+<meta name="description" content="A private tracker for arthritis blood reports, medicines and everyday care, in English and Hindi.">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0d7a6f">
+<!-- remember light / dark choice before the page paints -->
+<script>try{var m=localStorage.getItem("arthritis-tracker-theme");if(m==="light"||m==="dark")document.documentElement.setAttribute("data-theme",m);if(localStorage.getItem("arthritis-tracker-lang")==="hi")document.documentElement.lang="hi"}catch(e){}</script>
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="sections.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to the reports</a>
+<header class="bar" id="topbar"></header>
+
+<main id="main" class="wrap">
+  <noscript><div class="panel"><h2>This page needs JavaScript</h2><p>The comparison, charts and saving all run inside this page on your own device. Please open it in Chrome or Safari with JavaScript turned on.</p></div></noscript>
+  <div id="store-warning" class="banner" hidden></div>
+
+  <!-- Each section below is filled in by its own file in js/sections/ -->
+  <div id="top"><div class="hero" id="s-hero"></div></div>
+  <section id="s-glance"></section>     <!-- js/sections/summary.js -->
+  <section id="s-attn"></section>       <!-- js/sections/attention.js -->
+  <section id="s-tests"></section>      <!-- js/sections/tests.js -->
+  <section id="s-meds"></section>       <!-- js/sections/medicines.js -->
+  <section id="s-care"></section>       <!-- js/sections/care.js -->
+  <section id="s-add"></section>        <!-- js/sections/add-report.js -->
+  <section id="s-history"></section>    <!-- js/sections/history.js -->
+  <section id="s-data"></section>       <!-- js/sections/backup.js -->
+</main>
+<footer id="site-footer"></footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<div class="tip" id="tip" aria-hidden="true"></div>
+
+<!-- settings -->
+<script src="config.js"></script>
+<!-- data: edit these to add tests, medicines or natural-help cards -->
+<script src="data-tests.js"></script>
+<script src="data-medicines.js"></script>
+<script src="data-care.js"></script>
+<script src="data-seed.js"></script>
+<!-- languages -->
+<script src="i18n-en.js"></script>
+<script src="i18n-hi.js"></script>
+<!-- engine -->
+<script src="core-util.js"></script>
+<script src="core-i18n.js"></script>
+<script src="core-store.js"></script>
+<script src="core-analysis.js"></script>
+<script src="core-charts.js"></script>
+<script src="cloud-supabase-sync.js"></script>
+<!-- sections, in page order -->
+<script src="sections-topbar.js"></script>
+<script src="sections-hero.js"></script>
+<script src="sections-summary.js"></script>
+<script src="sections-attention.js"></script>
+<script src="sections-tests.js"></script>
+<script src="sections-medicines.js"></script>
+<script src="sections-care.js"></script>
+<script src="sections-add-report.js"></script>
+<script src="sections-history.js"></script>
+<script src="sections-backup.js"></script>
+<!-- start -->
+<script src="app.js"></script>
+</body>
+</html>

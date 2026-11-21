@@ -1,0 +1,40 @@
+/* Hallmark · custom direction · genre editorial · app screen · signature: the hero headline and the chart of her most worrying test, both recomputed from her own reports · tone: warm, bright paper, one teal signal, bold readable type */
+/* critique: a family tool, not a landing page; every number comes from her reports or what the family types; status colour always travels with a word or icon */
+/* waive 13: app screen with tables and forms, word count per screen is above 80 by design */
+
+/* ==========================================================================
+   DESIGN TOKENS: every colour and font on the site comes from here.
+   Light theme first, then dark theme (used when the phone is in dark mode,
+   or when the moon/sun button is pressed). Status colours are checked for
+   colour-blind readers in both themes; change them only together.
+   ========================================================================== */
+:root{
+  --bg:#fbf8f2; --surface:#ffffff; --surface-2:#f3eee5; --line:#e6dfd2; --line-strong:#cbc1af;
+  --fg:#1c1a16; --muted:#5b5449; --accent:#0d7a6f; --accent-ink:#ffffff; --accent-soft:#d9f1ec;
+  /* status: improved / healthy / worse / discuss / not improved */
+  --improved:#1f9a4f; --healthy:#1f74d1; --worse:#dc3f2e; --discuss:#7d4fd6; --same:#c98700;
+  --improved-soft:#ddf4e5; --healthy-soft:#dfecfb; --worse-soft:#fde4e0; --discuss-soft:#ece4fb; --same-soft:#fbefd2;
+  --improved-ink:#16723a; --healthy-ink:#185ba6; --worse-ink:#b02a1c; --discuss-ink:#5c34b0; --same-ink:#7f5600;
+  --band:#d3f0dc; --band-ink:#16723a; --shadow:rgba(40,32,20,.10);
+  --f-display:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,"Noto Serif Devanagari","Noto Serif",serif;
+  --f-body:system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans","Noto Sans Devanagari","Nirmala UI",Mangal,"Helvetica Neue",Arial,sans-serif;
+  --w-body:500; --w-strong:700; --w-head:700;
+  --r-lg:20px; --r-md:14px; --r-sm:10px;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141310; --surface:#1d1b17; --surface-2:#28241e; --line:#38332b; --line-strong:#4d463b;
+  --fg:#f3eee5; --muted:#bdb4a4; --accent:#3cc4b2; --accent-ink:#0d1210; --accent-soft:#163631;
+  --improved:#30a85c; --healthy:#3d88d8; --worse:#e3503e; --discuss:#906fe0; --same:#c08a10;
+  --improved-soft:#173622; --healthy-soft:#172a40; --worse-soft:#3f1d18; --discuss-soft:#2a2142; --same-soft:#3a2c0e;
+  --improved-ink:#7ee0a0; --healthy-ink:#94c4f5; --worse-ink:#ff9a8c; --discuss-ink:#c9b5ff; --same-ink:#f2c562;
+  --band:#183d26; --band-ink:#7ee0a0; --shadow:rgba(0,0,0,.35);
+  color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141310; --surface:#1d1b17; --surface-2:#28241e; --line:#38332b; --line-strong:#4d463b;
+  --fg:#f3eee5; --muted:#bdb4a4; --accent:#3cc4b2; --accent-ink:#0d1210; --accent-soft:#163631;
+  --improved:#30a85c; --healthy:#3d88d8; --worse:#e3503e; --discuss:#906fe0; --same:#c08a10;
+  --improved-soft:#173622; --healthy-soft:#172a40; --worse-soft:#3f1d18; --discuss-soft:#2a2142; --same-soft:#3a2c0e;
+  --improved-ink:#7ee0a0; --healthy-ink:#94c4f5; --worse-ink:#ff9a8c; --discuss-ink:#c9b5ff; --same-ink:#f2c562;
+  --band:#183d26; --band-ink:#7ee0a0; --shadow:rgba(0,0,0,.35);
+  color-scheme:dark}
