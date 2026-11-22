@@ -1,7 +1,9 @@
 /* ==========================================================================
    CLOUD BACKUP (optional, Supabase)
-   Works only when config.js has the project URL and anon key, and only on
-   the published website (sign-in links cannot open a file on the phone).
+   Works when config.js has the project URL, the anon key and ownerEmail.
+   Sign-in is a mobile number + password. Behind the scenes the number becomes
+   an email address on the owner's own inbox (plus-addressing, for example
+   you+919876543210@gmail.com), so no SMS service and no sign-in links are needed.
    The device copy (localStorage) is always kept; the cloud is an extra copy.
    One row per signed-in person in the table "tracker_backups" holds the whole
    backup as JSON. Row-level security (supabase-setup.sql) makes sure each
@@ -18,7 +20,29 @@ window.AT = window.AT || {};
   let cardEl = null;
 
   const configured = () => !!(CFG.supabaseUrl && CFG.supabaseAnonKey);
-  const isFile = () => location.protocol === "file:";
+  /* 10-digit Indian number -> 91XXXXXXXXXX; returns null if it does not look like a mobile number */
+  function cleanPhone(v) {
+    let d = String(v || "").replace(/\D/g, "");
+    if (d.length === 11 && d[0] === "0") d = d.slice(1);
+    if (d.length === 10) d = "91" + d;
+    return d.length >= 11 && d.length <= 15 ? d : null;
+  }
+  function phoneEmail(d) {
+    const own = String(CFG.ownerEmail || "").trim().toLowerCase();
+    const at = own.indexOf("@");
+    if (at > 0) return own.slice(0, at) + "+" + d + own.slice(at);
+    return "m" + d + "@" + (CFG.loginDomain || "arthritis-tracker.app");
+  }
+  function phoneOf(u) { const m = /\+?(\d{11,15})@|^m(\d{11,15})@/.exec((u && u.email) || ""); const d = m ? (m[1] || m[2]) : ""; return d ? "+" + d.slice(0, d.length - 10) + " " + d.slice(-10) : ((u && u.email) || ""); }
+  function friendly(err) {
+    const m = (err && err.message) || "";
+    if (/invalid login credentials/i.test(m)) return AT.t("cl_wrong");
+    if (/already registered|already exists/i.test(m)) return AT.t("cl_exists");
+    if (/signups? not allowed|signup.*disabled/i.test(m)) return AT.t("cl_nosignup");
+    if (/email not confirmed/i.test(m)) return AT.t("cl_confirm");
+    if (/password/i.test(m) && /6|short|weak/i.test(m)) return AT.t("cl_shortpw");
+    return AT.t("cl_err", m);
+  }
   const when = iso => { const d = new Date(iso), z = n => String(n).padStart(2, "0"); return AT.u.dLong(`${d.getFullYear()}-${z(d.getMonth() + 1)}-${z(d.getDate())}`) + ", " + z(d.getHours()) + ":" + z(d.getMinutes()); };
 
   function loadLib() {
@@ -33,7 +57,7 @@ window.AT = window.AT || {};
     status = "loading"; redraw();
     try {
       await loadLib();
-      client = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey, { auth: { persistSession: true, detectSessionInUrl: true, autoRefreshToken: true } });
+      client = window.supabase.createClient(CFG.supabaseUrl, CFG.supabaseAnonKey, { auth: { persistSession: true, detectSessionInUrl: false, autoRefreshToken: true } });
       const { data } = await client.auth.getSession();
       user = data.session ? data.session.user : null;
       status = user ? "in" : "out";
@@ -85,11 +109,14 @@ window.AT = window.AT || {};
     } catch (e) { info = AT.t("cl_err", e.message || ""); }
     busy = false; redraw();
   }
-  async function signIn(email) {
-    const redirect = location.origin + location.pathname;
-    const { error } = await client.auth.signInWithOtp({ email, options: { emailRedirectTo: redirect, shouldCreateUser: true } });
-    info = error ? AT.t("cl_err", error.message) : AT.t("cl_sent", email);
-    redraw();
+  async function signIn(phone, password, create) {
+    busy = true; info = ""; redraw();
+    const email = phoneEmail(phone);
+    const res = create ? await client.auth.signUp({ email, password }) : await client.auth.signInWithPassword({ email, password });
+    busy = false;
+    if (res.error) { info = friendly(res.error); redraw(); return; }
+    if (!res.data.session) { info = AT.t("cl_confirm"); redraw(); return; }
+    /* onAuthStateChange takes over from here and loads or saves the backup */
   }
   function redraw() { if (cardEl && cardEl.isConnected) renderCard(cardEl); }
 
@@ -98,21 +125,31 @@ window.AT = window.AT || {};
     const head = `<h3>${esc(AT.t("cl_h"))}</h3>`;
     const infoP = info ? `<p class="flag soft">${esc(info)}</p>` : "";
     if (status === "off") { el.innerHTML = `${head}<p class="small">${esc(AT.t("cl_off"))}</p>`; return; }
-    if (isFile()) { el.innerHTML = `${head}<p class="small">${esc(AT.t("cl_file"))}</p>`; return; }
     if (status === "loading") { el.innerHTML = `${head}<p class="small muted">${esc(AT.t("cl_loading"))}</p>`; return; }
     if (status === "error") { el.innerHTML = `${head}${infoP}<div><button class="btn" type="button" id="cl-retry">${esc(AT.t("cl_retry"))}</button></div>`; el.querySelector("#cl-retry").onclick = init; return; }
     if (status === "out") {
       el.innerHTML = `${head}<p class="small">${esc(AT.t("cl_out"))}</p>
-        <form id="cl-form" class="form-grid" novalidate><div class="field"><label for="cl-email">${esc(AT.t("cl_email"))}</label><input type="email" id="cl-email" autocomplete="email" required></div>
-        <div><button class="btn primary" type="submit">${esc(AT.t("cl_send"))}</button></div></form>${infoP}`;
-      el.querySelector("#cl-form").onsubmit = e => {
-        e.preventDefault(); const v = el.querySelector("#cl-email").value.trim();
-        if (!/^\S+@\S+\.\S+$/.test(v)) { info = AT.t("cl_bademail"); redraw(); return; }
-        signIn(v);
+        <form id="cl-form" class="form-grid" novalidate>
+          <div class="field"><label for="cl-phone">${esc(AT.t("cl_phone"))}</label><input type="tel" id="cl-phone" inputmode="numeric" autocomplete="username" placeholder="98765 43210" required></div>
+          <div class="field"><label for="cl-pw">${esc(AT.t("cl_pw"))}</label><input type="password" id="cl-pw" autocomplete="current-password" minlength="6" required>
+            <label class="check"><input type="checkbox" id="cl-show"> <span class="small">${esc(AT.t("cl_showpw"))}</span></label></div>
+          <div class="actions"><button class="btn primary" type="submit" ${busy ? 'aria-busy="true" disabled' : ""}>${esc(AT.t("cl_signin"))}</button>
+            <button class="btn" type="button" id="cl-create" ${busy ? "disabled" : ""}>${esc(AT.t("cl_create"))}</button></div>
+          <p class="tiny muted">${esc(AT.t("cl_create_hint"))}</p>
+        </form>${infoP}`;
+      const ph = el.querySelector("#cl-phone"), pw = el.querySelector("#cl-pw");
+      el.querySelector("#cl-show").onchange = e => { pw.type = e.target.checked ? "text" : "password"; };
+      const go = create => {
+        const d = cleanPhone(ph.value);
+        if (!d) { info = AT.t("cl_badphone"); redraw(); return; }
+        if (pw.value.length < 6) { info = AT.t("cl_shortpw"); redraw(); return; }
+        signIn(d, pw.value, create);
       };
+      el.querySelector("#cl-form").onsubmit = e => { e.preventDefault(); go(false); };
+      el.querySelector("#cl-create").onclick = () => go(true);
       return;
     }
-    el.innerHTML = `${head}<p class="small">${esc(AT.t("cl_in", user.email || ""))}</p>
+    el.innerHTML = `${head}<p class="small">${esc(AT.t("cl_in", phoneOf(user)))}</p>
       <p class="small muted">${esc(cloudMeta ? AT.t("cl_last", when(cloudMeta.updated_at)) : AT.t("cl_nothing"))}</p>${infoP}
       <label class="check"><input type="checkbox" id="cl-auto" ${auto ? "checked" : ""}> <span class="small">${esc(AT.t("cl_auto"))}</span></label>
       <div class="actions"><button class="btn primary small" type="button" id="cl-push" ${busy ? 'aria-busy="true" disabled' : ""}>${esc(AT.t("cl_push"))}</button>
