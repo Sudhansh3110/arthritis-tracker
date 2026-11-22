@@ -53,7 +53,9 @@ window.AT = window.AT || {};
     try {
       const meta = await fetchMeta();
       const local = AT.state;
-      if (!meta) { if (local.reports.length || local.meds.length) await push(true); }
+      const localEmpty = !local.reports.length && !local.meds.length;
+      if (!meta) { if (!localEmpty) await push(true); }
+      else if (localEmpty) { await pull(); return; } /* new phone: load the cloud copy straight away */
       else if (!local.changedAt || meta.updated_at > local.changedAt) info = AT.t("cl_newer", when(meta.updated_at));
       else info = "";
     } catch (e) { info = AT.t("cl_err", e.message || ""); }

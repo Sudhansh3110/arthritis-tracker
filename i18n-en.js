@@ -43,7 +43,7 @@ AT.i18n.en = { ui: {
   hero_noworry: "Nothing is far from healthy right now.",
   hero_meta: (n, s) => `${n} report${n === 1 ? "" : "s"} saved on this device.${s ? ` ${s} result${s === 1 ? "" : "s"} not improved yet.` : ""}`,
   hero_sig_none: "No result needs attention", hero_sig_none_p: "When a result is outside the healthy range, its chart appears here.",
-  hero_start_t: "No reports on this device yet", hero_start_p: "If you have a backup file, restore it in Save and backup.", hero_start_btn: "Restore a backup",
+  hero_start_t: "No reports on this device yet", hero_start_p: "Each phone keeps its own copy. Sign in to Cloud backup with the same email to load her data here, or restore a backup file.", hero_start_btn: "Load her data",
   addNew: "Add a new report", seeAttn: "See what needs attention",
 
   /* summary */
