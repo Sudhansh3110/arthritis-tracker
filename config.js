@@ -8,9 +8,9 @@
    ========================================================================== */
 window.AT = window.AT || {};
 AT.CONFIG = {
-  supabaseUrl: "",      // e.g. "https://abcdefghijkl.supabase.co"
-  supabaseAnonKey: "",  // the "publishable" or "anon public" key
-  ownerEmail: "",       // YOUR email, e.g. "yourname@gmail.com". Logins by mobile number are
+  supabaseUrl: "https://npygajbcgaaenlsjtkyp.supabase.co",      // e.g. "https://abcdefghijkl.supabase.co"
+  supabaseAnonKey: "sb_publishable_cvhKr_Y3-TFuhSPq3jdbRg_GpwkZDha",  // the "publishable" or "anon public" key
+  ownerEmail: "arorasudhansh12@gmail.com",       // YOUR email, e.g. "yourname@gmail.com". Logins by mobile number are
                         // stored as yourname+91XXXXXXXXXX@gmail.com, so nothing is sent by SMS.
   table: "tracker_backups"
 };
